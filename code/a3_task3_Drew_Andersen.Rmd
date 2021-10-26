@@ -4,41 +4,92 @@ author: "Drew Andersen"
 date: "10/24/2021"
 output: html_document
 ---
-# Overview
+## Overview
 This code wrangles and visualizes data for red and purple urchins recorded by Santa Barbara Coastal Long Term Ecological Research program divers.
 
 Data Citation: Reed, D. 2020. SBC LTER: Reef: Long-term experiment: Kelp removal: Urchin size frequency distribution ver 20. Environmental Data Initiative. https://doi.org/10.6073/pasta/5a1e9ef03aa47bd2225c0bb98a02a63b. 
 
-# Setup
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+## Setup
+```{r setup, include = TRUE, message = FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 library(tidyverse) #Attach packages
 library(janitor)
 library(here)
 library(lubridate)
+library(kableExtra)
 ```
 
 # Section 1
 This section will compare the size of purple and red urchins.
 
-# Read in the data
+## Read in the data
 ```{r}
 urchins <- read_csv(here("data","urchins.csv")) %>% #read in data
   clean_names() #convert to lower snake case
 ```
 
-#Data Visualization
+## Data Wrangling 
+Calculating summary statistic for each type of urchin.
+```{r}
+urchins_stats <- urchins %>% 
+  group_by(common_name) %>% 
+  summarize(sample_size = n(), #summary statistics for both species of urchin
+            mean_size = mean(size),
+            std_dev = sd(size),
+            median_size = median(size))
+
+urchins_stats %>% 
+  kable(col.names = c("Species", #renaming the column names from their variable names
+                      "Sample Size", 
+                      "Mean Diameter (cm)",
+                      "Standard Deviation (cm)",
+                      "Median Diameter (cm)")) %>% 
+  kable_styling(full_width = FALSE)
+```
+
+## Data Visualization
 Creating a faceted histogram to compare the distribution of sizes between purple and red urchins.
+
 ```{r}
 ggplot(data = urchins, aes(x = size)) +
-  geom_histogram(bins = 10, aes(fill = common_name)) +
-  facet_wrap(vars(common_name)) +
-  labs(title = "Size Distribution of Purple & Red Urchins",
-       x = "Urchin Size (cm)",
+  geom_histogram(bins = 10, aes(fill = common_name)) + #histogram that is colored according to the common_name
+  scale_fill_manual(values = c("purple","red")) + #specific colors chosen
+  facet_wrap(vars(common_name)) + #creates two seperate side by side histograms
+  labs(title = "Size Distribution of Purple & Red Urchins", #adds labels/titles
+       x = "Urchin Diameter (cm)",
        y = "Count",
-       caption = "Distribution of urchin sizes according to their color. Size is recorded by measuring the urchin's diameter size to the nearest 0.5 cm") +
-  theme(legend.position = "none") +
-  scale_fill_manual(values = c("purple","red"))
+       caption = "Figure 1. Distribution of urchin sizes by species. Size is recorded by measuring the urchin's diameter to the nearest 0.5 cm") +
+  theme(legend.position = "none") #removes redundant legend 
 ```
+Comparing the two plots above, we can see that red urchins are larger than purple urchins by roughly 50%. The distribution of size for purple urchins is positively skewed and has a narrower spread as well. The red urchins are larger and also have a broader distribution in size. 
+
+# Section 2
+This section will examine the number of purple urchins observed at various sites by year.
+
+## Data Wrangling
+```{r}
+purple_urchins <- urchins %>% 
+  filter(common_name == "Purple Urchin") %>% 
+  mutate(date_new = mdy(date)) %>% 
+  mutate(year = year(date_new)) %>% 
+  mutate(site_full = case_when(
+    site == "NAPL" ~ "Naples Reef",
+    site == "AQUE" ~ "Arroyo Quemado Reef",
+    site == "CARP" ~ "Carpinteria Reef",
+    site == "MOHK" ~ "Mohawk Reef",
+    site == "IVEE" ~ "Isla Vista Reef")) %>% 
+  group_by(site_full, year) %>% 
+  summarize(count = n())
+```
+
+## Data Visualization 
+```{r}
+ggplot(data = purple_urchins, aes(x = year, y = count)) +
+  geom_col(fill = "purple") +
+  facet_wrap(vars(site_full)) +
+  labs(title = "Purple Urchin Count by Site",)
+  
+```
+
 
