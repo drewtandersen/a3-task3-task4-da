@@ -1,0 +1,33 @@
+---
+title: "a3_task4_Drew_Andersen"
+author: "Drew Andersen"
+date: "10/26/2021"
+output: html_document
+---
+# Overview
+
+# Setup
+```{r setup, include = TRUE, message = FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+library(tidyverse) #Attach packages
+library(janitor)
+library(here)
+library(lubridate)
+library(kableExtra)
+```
+
+# Read in the data
+```{r}
+
+```
+
+# Data Wrangling
+```{r}
+
+```
+
+# Data Visualization 
+```{r}
+
+```
