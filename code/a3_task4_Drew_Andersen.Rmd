@@ -5,6 +5,9 @@ date: "10/26/2021"
 output: html_document
 ---
 # Overview
+This code will wrangle data to create a table that will compare the mean size of purple urchins in sections of reef that received annual kelp removal to urchins in the control group that were not located in these sections. This data is specifically comparing urchins in sections of Naples Reef in 2010.
+
+Data Citation: Reed, D. 2020. SBC LTER: Reef: Long-term experiment: Kelp removal: Urchin size frequency distribution ver 20. Environmental Data Initiative. https://doi.org/10.6073/pasta/5a1e9ef03aa47bd2225c0bb98a02a63b. 
 
 # Setup
 ```{r setup, include = TRUE, message = FALSE}
@@ -19,12 +22,33 @@ library(kableExtra)
 
 # Read in the data
 ```{r}
-
+urchins <- read_csv(here("data","urchins.csv")) %>% #read in data
+  clean_names() #convert to lower snake case
 ```
 
 # Data Wrangling
-```{r}
 
+```{r}
+naples_urchins <- urchins %>% 
+    mutate(date_new = mdy(date),
+         year = year(date_new)) %>% 
+  filter(common_name == "Purple Urchin",
+         site == "NAPL",
+         year == 2010) %>% 
+  group_by(treatment) %>% 
+  summarize(sample_size = n(), #summary statistics for both treatments of urchin
+            mean_size = round(mean(size),1),
+            std_dev = round(sd(size),2),
+            median_size = round(median(size),1))
+
+naples_urchins %>% 
+  kable(col.names = c("Treatment", #renaming the column names from their variable names
+                      "Sample Size", 
+                      "Mean Diameter (cm)",
+                      "Standard Deviation (cm)",
+                      "Median Diameter (cm)")) %>% 
+  kable_styling(full_width = FALSE)
+  
 ```
 
 # Data Visualization 
