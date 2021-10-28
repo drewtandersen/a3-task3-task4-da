@@ -35,8 +35,8 @@ Calculating summary statistic for each type of urchin.
 urchins_stats <- urchins %>% 
   group_by(common_name) %>% 
   summarize(sample_size = n(), #summary statistics for both species of urchin
-            mean_size = mean(size),
-            std_dev = sd(size),
+            mean_size = round(mean(size),1),
+            std_dev = round(sd(size),1),
             median_size = median(size))
 
 urchins_stats %>% 
@@ -60,6 +60,7 @@ ggplot(data = urchins, aes(x = size)) +
        x = "Urchin Diameter (cm)",
        y = "Count",
        caption = "Figure 1. Distribution of urchin sizes by species. Size is recorded by measuring the urchin's diameter to the nearest 0.5 cm") +
+  theme_bw() +
   theme(legend.position = "none") #removes redundant legend 
 ```
 Comparing the two plots above, we can see that red urchins are larger than purple urchins by roughly 50%. The distribution of size for purple urchins is positively skewed and has a narrower spread as well. The red urchins are larger and also have a broader distribution in size. 
@@ -68,22 +69,24 @@ Comparing the two plots above, we can see that red urchins are larger than purpl
 This section will examine the number of purple urchins observed at various sites by year.
 
 ## Data Wrangling
+Creates a subset of data for purple urchin counts at various reefs between 2008-2020.
 ```{r}
 purple_urchins <- urchins %>% 
-  filter(common_name == "Purple Urchin") %>% 
-  mutate(date_new = mdy(date)) %>% 
-  mutate(year = year(date_new)) %>% 
-  mutate(site_full = case_when(
+  filter(common_name == "Purple Urchin") %>% #discludes the red urchin population
+  mutate(date_new = mdy(date)) %>% #converts date column into date object
+  mutate(year = year(date_new)) %>% #creates a column for year that can now be grouped by 
+  mutate(site_full = case_when( #replaces acronym with full reef name
     site == "NAPL" ~ "Naples Reef",
     site == "AQUE" ~ "Arroyo Quemado Reef",
     site == "CARP" ~ "Carpinteria Reef",
     site == "MOHK" ~ "Mohawk Reef",
     site == "IVEE" ~ "Isla Vista Reef")) %>% 
   group_by(site_full, year) %>% 
-  summarize(count = n())
+  summarize(count = n()) #finds the count of purple urchins by site by year
 ```
 
 ## Data Visualization 
+Creates a line plot where each line represents a different sample site. 
 ```{r}
 ggplot(data = purple_urchins, aes(x = year, y = count)) +
   geom_line(aes(color = site_full)) +
