@@ -27,31 +27,53 @@ urchins <- read_csv(here("data","urchins.csv")) %>% #read in data
 ```
 
 # Data Wrangling
-
+This section creates two subsets of data. The first only retains observations for purple urchins on Naples Reef in 2010 and the second creates summary statistics for two types of urchins in this population - those that were in sections that received annual kelp removal and those that were in sections that did not. 
 ```{r}
+#subset for Purple Urchins on Naples Reef in 2010
 naples_urchins <- urchins %>% 
-    mutate(date_new = mdy(date),
-         year = year(date_new)) %>% 
-  filter(common_name == "Purple Urchin",
+    mutate(date_new = mdy(date), #parses the date for this column
+         year = year(date_new)) %>% #creates a variable for year that we can filter by
+  filter(common_name == "Purple Urchin", #filters according to the criteria
          site == "NAPL",
-         year == 2010) %>% 
-  group_by(treatment) %>% 
+         year == 2010)
+
+#subset for statistics on two treatment types
+naples_stats <- naples_urchins %>% 
+  group_by(treatment) %>% #groups the urchins based off treatment
   summarize(sample_size = n(), #summary statistics for both treatments of urchin
             mean_size = round(mean(size),1),
             std_dev = round(sd(size),2),
             median_size = round(median(size),1))
 
-naples_urchins %>% 
+naples_stats %>% 
   kable(col.names = c("Treatment", #renaming the column names from their variable names
                       "Sample Size", 
                       "Mean Diameter (cm)",
                       "Standard Deviation (cm)",
-                      "Median Diameter (cm)")) %>% 
+                      "Median Diameter (cm)"),
+        caption = "Table 1. Summary statistics for two groups of purple urchins on Naples Reef in 2010. Urchins that were located in sections of annual kelp removal and those that were not.") %>% 
   kable_styling(full_width = FALSE)
-  
 ```
 
-# Data Visualization 
+# Data Exploration
+This section explores the subsets for urchins above to examine the difference between urchins that were located in sections of annual kelp removal versus those that were not. 
 ```{r}
+#Faceted histogram for each type of treatment
+ggplot(data = naples_urchins, aes(size)) +
+  geom_histogram(bins = 10, aes(fill = treatment)) +
+  scale_fill_manual(values = c("blue","green")) +
+  facet_wrap(vars(treatment)) + #creates two histograms based off treatment
+  labs(title = "Size Distribution of Purple Urchins in Sections of Kelp Removal and Control ", #adds labels/titles
+       x = "Urchin Diameter (cm)",
+       y = "Count",
+       caption = "Figure 1. Distribution of urchin sizes by species. Size is recorded by measuring the urchin's diameter to the nearest 0.5 cm") +
+  theme_bw() +
+  theme(legend.position = "none") #removes redundant legend 
 
+#QQ plot to examine normality of this data
+ggplot(data = naples_urchins, aes(sample = size)) +
+  geom_qq() +
+  facet_wrap(~treatment) +
+  theme_classic()
 ```
+The histograms above display distributions that are close to normal. The histogram for the annual kelp removal group appears slightly right-skewed, however we see a more normal distribution in our control group. These patterns are also recognizable in the QQ plots because we largely see straight lines, but the lower ends deviate away from this straight line, indicating a right-skewed distribution. This is illustrated in both QQ plots, but is more pronounced in the group that saw annual kelp removal. 
