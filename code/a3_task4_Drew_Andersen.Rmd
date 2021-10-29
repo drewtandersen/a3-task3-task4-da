@@ -1,11 +1,11 @@
 ---
-title: "a3_task4_Drew_Andersen"
+title: "Naples Reef Purple Urchins (2010)"
 author: "Drew Andersen"
 date: "10/26/2021"
 output: html_document
 ---
 # Overview
-This code will wrangle data to create a table that will compare the mean size of purple urchins in sections of reef that received annual kelp removal to urchins in the control group that were not located in these sections. This data is specifically comparing urchins in sections of Naples Reef in 2010.
+This code will wrangle data to create a table that will compare the mean size of purple urchins in sections of reef that received annual kelp removal to urchins in a control group. Exploratory plots will be used to examine the distribution in size between these two groups as well. This data is specifically comparing urchins in sections of Naples Reef in 2010. 
 
 Data Citation: Reed, D. 2020. SBC LTER: Reef: Long-term experiment: Kelp removal: Urchin size frequency distribution ver 20. Environmental Data Initiative. https://doi.org/10.6073/pasta/5a1e9ef03aa47bd2225c0bb98a02a63b. 
 
@@ -27,7 +27,7 @@ urchins <- read_csv(here("data","urchins.csv")) %>% #read in data
 ```
 
 # Data Wrangling
-This section creates two subsets of data. The first only retains observations for purple urchins on Naples Reef in 2010 and the second creates summary statistics for two types of urchins in this population - those that were in sections that received annual kelp removal and those that were in sections that did not. 
+This section creates two subsets of data. The first only retains observations for purple urchins on Naples Reef in 2010 and the second creates summary statistics for the two groups of urchins in this population - those that were in sections that received annual kelp removal and the control group. 
 ```{r}
 #subset for Purple Urchins on Naples Reef in 2010
 naples_urchins <- urchins %>% 
@@ -51,7 +51,7 @@ naples_stats %>%
                       "Mean Diameter (cm)",
                       "Standard Deviation (cm)",
                       "Median Diameter (cm)"),
-        caption = "Table 1. Summary statistics for two groups of purple urchins on Naples Reef in 2010. Urchins that were located in sections of annual kelp removal and those that were not.") %>% 
+        caption = "Table 1. Summary statistics for two groups of purple urchins on Naples Reef in 2010. Urchins that were located in sections of reef that received annual kelp removal and those in the control group.") %>% 
   kable_styling(full_width = FALSE)
 ```
 
@@ -63,10 +63,10 @@ ggplot(data = naples_urchins, aes(size)) +
   geom_histogram(bins = 10, aes(fill = treatment)) +
   scale_fill_manual(values = c("blue","green")) +
   facet_wrap(vars(treatment)) + #creates two histograms based off treatment
-  labs(title = "Size Distribution of Purple Urchins in Sections of Kelp Removal and Control ", #adds labels/titles
+  labs(title = "Size Distribution of Purple Urchins in Sections of Annual Kelp Removal and Control ", #adds labels/titles
        x = "Urchin Diameter (cm)",
        y = "Count",
-       caption = "Figure 1. Distribution of urchin sizes by species. Size is recorded by measuring the urchin's diameter to the nearest 0.5 cm") +
+       caption = "Figure 1. Distribution of urchin sizes by group. Size is recorded by measuring the urchin's diameter to the nearest 0.5 cm") +
   theme_bw() +
   theme(legend.position = "none") #removes redundant legend 
 
@@ -76,4 +76,5 @@ ggplot(data = naples_urchins, aes(sample = size)) +
   facet_wrap(~treatment) +
   theme_classic()
 ```
+
 The histograms above display distributions that are close to normal. The histogram for the annual kelp removal group appears slightly right-skewed, however we see a more normal distribution in our control group. These patterns are also recognizable in the QQ plots because we largely see straight lines, but the lower ends deviate away from this straight line, indicating a right-skewed distribution. This is illustrated in both QQ plots, but is more pronounced in the group that saw annual kelp removal. 
