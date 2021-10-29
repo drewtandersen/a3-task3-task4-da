@@ -19,16 +19,17 @@ library(here)
 library(lubridate)
 library(kableExtra)
 ```
-# {.tabset .tabset-fade}
 
-## Section 1
-This section will compare the size of purple and red urchins.
-
-### Read in the data
+# Read in the data
 ```{r}
 urchins <- read_csv(here("data","urchins.csv")) %>% #read in data
   clean_names() #convert to lower snake case
 ```
+
+# {.tabset .tabset-fade}
+
+## Section 1
+This section will compare the size of purple and red urchins.
 
 ### Data Wrangling 
 Calculating summary statistics for each type of urchin.
