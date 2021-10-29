@@ -5,7 +5,7 @@ date: "10/26/2021"
 output: html_document
 ---
 # Overview
-This code will wrangle data to create a table that will compare the mean size of purple urchins in sections of reef that received annual kelp removal to urchins in a control group. Exploratory plots will be used to examine the distribution in size between these two groups as well. This data is specifically comparing urchins in sections of Naples Reef in 2010. 
+This code will wrangle data to create a table that will compare the mean size of purple urchins in sections of reef that received annual kelp removal to urchins in a control group. Exploratory plots will be used to examine the distribution in size between these two groups as well. This data is specifically comparing purple urchins in sections of Naples Reef in 2010. 
 
 Data Citation: Reed, D. 2020. SBC LTER: Reef: Long-term experiment: Kelp removal: Urchin size frequency distribution ver 20. Environmental Data Initiative. https://doi.org/10.6073/pasta/5a1e9ef03aa47bd2225c0bb98a02a63b. 
 
@@ -42,7 +42,7 @@ naples_stats <- naples_urchins %>%
   group_by(treatment) %>% #groups the urchins based off treatment
   summarize(sample_size = n(), #summary statistics for both treatments of urchin
             mean_size = round(mean(size),1),
-            std_dev = round(sd(size),2),
+            std_dev = round(sd(size),1),
             median_size = round(median(size),1))
 
 naples_stats %>% 
@@ -51,7 +51,7 @@ naples_stats %>%
                       "Mean Diameter (cm)",
                       "Standard Deviation (cm)",
                       "Median Diameter (cm)"),
-        caption = "Table 1. Summary statistics for two groups of purple urchins on Naples Reef in 2010. Urchins that were located in sections of reef that received annual kelp removal and those in the control group.") %>% 
+        caption = "Table 1. Summary statistics for two groups of purple urchins on Naples Reef in 2010: purple urchins that were located in sections of reef that received annual kelp removal and those in the control group.") %>% 
   kable_styling(full_width = FALSE)
 ```
 
@@ -63,7 +63,7 @@ ggplot(data = naples_urchins, aes(size)) +
   geom_histogram(bins = 10, aes(fill = treatment)) +
   scale_fill_manual(values = c("blue","green")) +
   facet_wrap(vars(treatment)) + #creates two histograms based off treatment
-  labs(title = "Size Distribution of Purple Urchins in Sections of Annual Kelp Removal and Control ", #adds labels/titles
+  labs(title = "Size Distribution of Purple Urchins on Naples Reef (2010)", #adds labels/titles
        x = "Urchin Diameter (cm)",
        y = "Count",
        caption = "Figure 1. Distribution of urchin sizes by group. Size is recorded by measuring the urchin's diameter to the nearest 0.5 cm") +
